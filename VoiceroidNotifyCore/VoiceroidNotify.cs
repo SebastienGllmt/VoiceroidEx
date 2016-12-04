@@ -128,7 +128,7 @@ namespace saga.voiceroid
 				return;
 			}
 			string logFilePath = AppDomain.CurrentDomain.BaseDirectory + "log.log";
-			StreamWriter writer = new StreamWriter(logFilePath, true, System.Text.Encoding.GetEncoding("Shift_JIS"));
+			StreamWriter writer = new StreamWriter(logFilePath, true, System.Text.Encoding.GetEncoding("UTF-8"));
 			writer.WriteLine(str);
 			writer.Close();
 			Console.WriteLine(str);
@@ -197,7 +197,9 @@ namespace saga.voiceroid
         protected IntPtr GetSaveButtonHandle(List<IntPtr> hWndList)
         {
             return hWndList[voiceroidInfo.SaveButtonIndex];
-        }		/*
+        }
+
+		/*
 		 * テキストボックスに引数を設定
 		 * @param talkStr 音声テキスト
 		 * @throws ApplicationException Voiceroidが起動していません

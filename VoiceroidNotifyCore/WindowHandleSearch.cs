@@ -13,18 +13,16 @@ namespace saga.util
 		[return: MarshalAs(UnmanagedType.Bool)]
 		protected static extern bool EnumChildWindows(IntPtr hwndParent, EnumWindowProc lpEnumFunc, IntPtr lParam);
 
-		protected delegate bool Win32Callback(IntPtr hwnd, IntPtr lParam);
-		[DllImport("user32.Dll")]
-		[return: MarshalAs(UnmanagedType.Bool)]
-		protected static extern bool EnumChildWindows(IntPtr parentHandle, Win32Callback callback, IntPtr lParam);
-
 		[DllImport("user32.dll")]
 		protected static extern IntPtr GetWindow(IntPtr hWnd, uint uCmd);
 		[DllImport("user32.dll")]
 		private static extern bool SetWindowText(IntPtr hWnd, String lpString);
 		[DllImport("user32.dll", EntryPoint = "FindWindow")]
 		protected static extern IntPtr FindWindow(String lpszClass, String lpszWindow);
-
+		
+		[DllImport("user32.dll")]
+		private static extern IntPtr GetForegroundWindow();
+		
 		// ハンドル保持用リスト
 		protected List<IntPtr> hWndList;
 		// ウィンドウハンドル
@@ -41,7 +39,14 @@ namespace saga.util
 			this.windowName = windowName;
 
 			this.hWndList = new List<IntPtr>();
-			Update();
+			Update(false);
+		}
+		
+		public WindowHandleSearch(){
+			this.windowName = "";
+
+			this.hWndList = new List<IntPtr>();
+			Update(true);
 		}
         /*
          * 親ウィンドウハンドルを取得
@@ -69,20 +74,24 @@ namespace saga.util
 			return hWndList[index];
 		}
 		// 子ハンドルのリスト更新
-		public void Update()
+		public void Update(bool useForeground)
 		{
 			hWndList.Clear();
-			this.hWnd = GetWindowHandle(windowName);
-			if (hWnd.Equals((IntPtr)0))
-			{
-                this.hWnd = GetWindowHandle(windowName+"*");
-                if (hWnd.Equals((IntPtr)0))
-                {
+			if(useForeground){
+				this.hWnd = GetForegroundWindow();
+			}else{
+				this.hWnd = GetWindowHandle(windowName);
+				if (hWnd.Equals((IntPtr)0))
+				{
+					this.hWnd = GetWindowHandle(windowName+"*");
+					if (hWnd.Equals((IntPtr)0))
+					{
 
-                    string str = "\"" + windowName + "\"は起動していません";
-                    throw new ApplicationException(str);
-                }
-                this.windowName = windowName + "*";
+						string str = "\"" + windowName + "\"は起動していません";
+						throw new ApplicationException(str);
+					}
+					this.windowName = windowName + "*";
+				}
 			}
 			GCHandle listHandle = GCHandle.Alloc(hWndList);
 			try
@@ -130,13 +139,12 @@ namespace saga.util
 					return pitem.MainWindowHandle;
 				}
 			}
-			IntPtr hWnd = FindWindow(null, windowName);
+			IntPtr hWnd = FindWindow(null, this.windowName);
 			if (hWnd != null)
 			{
 				return hWnd;
 			}
 			return (IntPtr)0;
 		}
-
 	}
 }

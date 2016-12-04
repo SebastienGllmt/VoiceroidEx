@@ -136,10 +136,10 @@ namespace saga.voiceroid
             IntPtr Msg = voiceroidInfo.SType == SystemType.Type1 ? WM_NULL : WM_CLICK;
             PostMessage(hOpenSaveWindowButton, Msg, WM_NULL, WM_NULL);
 
-			Thread.Sleep(1500);
+			Thread.Sleep(2000);
 
-			saga.util.WindowHandleSearch saveWndSearch = new WindowHandleSearch(this.voiceroidInfo.SaveWindowTitle);
-
+			saga.util.WindowHandleSearch saveWndSearch = new WindowHandleSearch();
+			
             IntPtr hWndSave = saveWndSearch.GetParentWindowHandle();
 			IntPtr hFilenameTextBox = GetFileNameTextBoxHandle(saveWndSearch.GetWindowHandleList());
 			IntPtr hSaveButton = GetSaveButtonHandle(saveWndSearch.GetWindowHandleList());
